@@ -32,6 +32,13 @@ class PredictionResponse(BaseModel):
     label: str
 
 
+@app.on_event("startup")
+async def startup_event():
+    """Load model weights and tokenizer into memory on startup."""
+    # TODO: Initialize PhishingDetector and AutoTokenizer here
+    pass
+
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "model_loaded": False}
