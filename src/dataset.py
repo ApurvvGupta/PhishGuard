@@ -50,6 +50,23 @@ def load_and_preprocess(
     config: DataConfig,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load raw data and split into train/val/test."""
-    # TODO: Implement data loading for specific dataset
-    # Placeholder for dataset loading logic
-    raise NotImplementedError("Implement data loading for your chosen dataset")
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        df = pd.read_csv(data_path)
+        logger.info(f"Loaded {len(df)} raw samples from {data_path}")
+        
+        # Simple random split based on config
+        train_df = df.sample(frac=config.train_split, random_state=config.random_seed)
+        val_test_df = df.drop(train_df.index)
+        
+        val_frac = config.val_split / (config.val_split + config.test_split)
+        val_df = val_test_df.sample(frac=val_frac, random_state=config.random_seed)
+        test_df = val_test_df.drop(val_df.index)
+        
+        logger.info(f"Splits - Train: {len(train_df)}, Val: {len(val_df)}, Test: {len(test_df)}")
+        return train_df, val_df, test_df
+    except Exception as e:
+        logger.error(f"Error loading dataset from {data_path}: {str(e)}")
+        raise
